@@ -1,8 +1,11 @@
-/*
- * SPDX-FileCopyrightText: 2021-2022 Espressif Systems (Shanghai) CO LTD
+
+/****	BEFORE START THE PROJECT CHECK BELOW LINK
  *
- * SPDX-License-Identifier: Unlicense OR CC0-1.0
- */
+ * Check the API Reference >> Bluetooth API >> Classic BT >> SPP API Reference in link below
+ *
+ * https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/bluetooth/esp_spp.html?highlight=esp_spp_cb#_CPPv418esp_spp_cb_event_t
+ *
+****/
 
 #include <stdint.h>
 #include <string.h>
@@ -24,10 +27,12 @@
 
 #define SPP_TAG "SPP_ACCEPTOR_DEMO"
 #define SPP_SERVER_NAME "SPP_SERVER"
-#define EXAMPLE_DEVICE_NAME "ESP_SPP_ACCEPTOR"
+#define EXAMPLE_DEVICE_NAME "ESP_Mucahit_Project_BT"		/* CHANGE THE DEVICE NAME FROM HERE. */
 #define SPP_SHOW_DATA 0
 #define SPP_SHOW_SPEED 1
 #define SPP_SHOW_MODE SPP_SHOW_SPEED    /*Choose show mode: show data or speed*/
+
+static  bool bWriteAfterSrvOpenEvt = true; 	/* USED FOR ERROR CONTROL MANAGEMENT */
 
 static const esp_spp_mode_t esp_spp_mode = ESP_SPP_MODE_CB;
 static const bool esp_spp_enable_l2cap_ertm = true;
@@ -126,6 +131,28 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         ESP_LOGI(SPP_TAG, "ESP_SPP_WRITE_EVT");
         break;
     case ESP_SPP_SRV_OPEN_EVT:
+
+
+						/* WRITE MESSAGE AFTER BLUETOOTH CONNECTION */
+		/*************************************************************************************/
+
+		ESP_LOGI(SPP_TAG,"OPEN_EVENT = %d", bWriteAfterSrvOpenEvt);
+
+		if (bWriteAfterSrvOpenEvt){
+		ESP_LOGI(SPP_TAG, "bWriteAfterSrvOpenEvt = true");
+
+		char *c = "Mucahit";
+		uint8_t *u = (uint8_t *)c; 	// TYPE CASTING
+		ESP_LOGI(SPP_TAG, "Call esp_spp_write(param->srv_open.handle, 5, Mucahit)");
+		esp_spp_write(param->srv_open.handle, 7, u);
+		}
+		else{
+		ESP_LOGI(SPP_TAG, "bWriteAfterSrvOpenEvt = false");
+		}
+
+		/*************************************************************************************/
+
+
         ESP_LOGI(SPP_TAG, "ESP_SPP_SRV_OPEN_EVT status:%d handle:%d, rem_bda:[%s]", param->srv_open.status,
                  param->srv_open.handle, bda2str(param->srv_open.rem_bda, bda_str, sizeof(bda_str)));
         gettimeofday(&time_old, NULL);
